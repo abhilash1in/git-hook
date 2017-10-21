@@ -1,0 +1,9 @@
+#!/usr/bin/nodejs
+var debug = require('debug')('git-hook');
+var app = require('../app');
+
+app.set('port', process.env.PORT || 23928);
+
+var server = app.listen(app.get('port'), function() {
+  debug('git-hook server listening on port ' + server.address().port);
+});
