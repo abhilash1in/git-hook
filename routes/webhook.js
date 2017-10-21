@@ -3,7 +3,7 @@ var router = express.Router();
 var crypto = require('crypto');
 var pm2 = require('pm2');
 const key = "route-test";
-const PID = "3";
+const PID = "7";
 
 
 function verifyGitHub(req, secret){
@@ -19,23 +19,40 @@ return crypto.timingSafeEqual(Buffer.from(theirSignature), Buffer.from(ourSignat
 };
 
 router.post('/', function(req, res) {
-	console.log(verifyGitHub(req,"route-test"));
+	var verified = verifyGitHub(req,"route-test");
+	if (!verified){
+		res.send(401,"Wrong Secret Key");
+		return;
+	}
 	pm2.connect(function(err) {
 		if (err) {
 			console.error(err);
-			//process.exit(2);
+			pm2.disconnect();
+			res.send("Failed. Could not connect to PM2");
+			return;
 		}
 		pm2.describe(PID,function(errback,pm2process){
-			console.log(pm2process[0]['pm2_env'].status);
-		});
-		/*pm2.restart(PID, function(restartErr, apps) {
-			pm2.disconnect();   // Disconnects from PM2
-			if (restartErr){
-				console.error(restartErr);
+			if(errback){
+				console.error(err);
+				pm2.disconnect();
+				res.send("Failed. Could not describe process with PID "+PID);
+				return;
 			}
-		});*/
+			const status = pm2process[0]['pm2_env'].status;
+			if(status == "online" || status == "errored" ){
+				pm2.restart(PID, function(restartErr) {
+					if(restartErr){
+						console.error(err);
+						pm2.disconnect();
+						res.send("Failed. Could not restart process with PID "+PID);
+						return;
+					}
+					pm2.disconnect()
+					res.send("Success");
+				});
+			}
+		});
 	});
-	res.send("Thanks!");
 });
 
 module.exports = router;
