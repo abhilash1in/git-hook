@@ -26,7 +26,7 @@ router.post('/', function(req, res) {
 			//process.exit(2);
 		}
 		pm2.describe(PID,function(errback,pm2process){
-			console.log(pm2process);
+			console.log(pm2process[0]['pm2_env'].status);
 		});
 		/*pm2.restart(PID, function(restartErr, apps) {
 			pm2.disconnect();   // Disconnects from PM2
