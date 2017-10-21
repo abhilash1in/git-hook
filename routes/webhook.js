@@ -3,7 +3,7 @@ var router = express.Router();
 var crypto = require('crypto');
 var pm2 = require('pm2');
 const key = "route-test";
-const PID = "3";
+const PID = "";
 
 
 function verifyGitHub(req, secret){
@@ -25,7 +25,7 @@ router.post('/', function(req, res) {
 			console.error(err);
 			//process.exit(2);
 		}
-		pm2.describe(PID,function(pm2process,errback){
+		pm2.describe(PID,function(errback,pm2process){
 			console.log(pm2process);
 		});
 		/*pm2.restart(PID, function(restartErr, apps) {
