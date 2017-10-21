@@ -43,7 +43,7 @@ router.post('/', function(req, res) {
 			}
 			const status = pm2process[0]['pm2_env'].status;
 			if(status == "online" || status == "errored" ){
-				git.pull(functon(pullErr,data){
+				git.pull(function(pullErr,update){
 					if(pullErr){
 						console.error(pullErr);
 						pm2.disconnect();
